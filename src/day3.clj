@@ -25,10 +25,19 @@
   (apply map vector m))
 
 ;; answer to second part
+(->> input
+     (partition-all 3)
+     (mapcat transpose)
+     (filter valid-triangle?)
+     count) ;;=> 1826
+
+;; bonus, with transducers - less friendly on the eyes though
 (transduce
  (comp (partition-all 3)
        (mapcat transpose)
-       (filter valid-triangle?)
-       (map (constantly 1)))
- +
+       (filter valid-triangle?))
+ (fn
+   ([acc] acc)
+   ([acc n] (inc acc)))
+ 0
  input) ;;=> 1826
