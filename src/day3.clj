@@ -5,7 +5,6 @@
 (def input (->> "day3.txt"
                io/resource
                slurp
-               str/trim
                str/split-lines
                (sequence
                 (comp
@@ -19,16 +18,17 @@
        (> (+ a c) b)
        (> (+ b c) a)))
 
-(defn valid-triangles [input]
-  (count (filter valid-triangle? input)))
-
 ;; answer to first part
-(valid-triangles input) ;;=> 982
+(count (filter valid-triangle? input)) ;;=> 982
 
 (defn transpose [m]
   (apply map vector m))
 
-(def vertical-input (mapcat transpose (partition 3 input)))
-
 ;; answer to second part
-(valid-triangles vertical-input) ;;=> 1826
+(transduce
+ (comp (partition-all 3)
+       (mapcat transpose)
+       (filter valid-triangle?)
+       (map (constantly 1)))
+ +
+ input) ;;=> 1826
