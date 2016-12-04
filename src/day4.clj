@@ -14,24 +14,25 @@
   (let [[_ name sector-id freq-order]
         (re-matches #"(.*?)-(\d+)\[(.*)\]"
                     encrypted-name)
-        top-n (apply concat
-                     (map
-                      sort
-                      (partition-by
-                       val
-                       (sort-by
-                        (fn [[k v]]
-                          (- v))
-                        (frequencies
-                         (apply str
-                                (str/replace name
-                                             "-"
-                                             "")))))))
-        top-5-letters (map
-                       first
-                       (take 5
-                             top-n))]
-    (when (= top-5-letters
+        top-5 (->>
+               ;; strip hyphens
+               (str/replace name
+                            "-"
+                            "")
+               frequencies
+               ;; sort descending
+               (sort-by val >)
+               ;; group equal adjacent frequencies
+               (partition-by val)
+               ;; drop frequencies
+               (map #(map first %))
+               ;; sort groups alphabetically
+               (map sort)
+               ;; concatenate the groups
+               (apply concat)
+               ;; take the top 5
+               (take 5))]
+    (when (= top-5
              (seq freq-order))
       [name (Integer. sector-id)])))
 
